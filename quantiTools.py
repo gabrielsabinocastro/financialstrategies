@@ -4,11 +4,11 @@ import datetime as dt
 from dateutil.relativedelta import relativedelta as rltd
 
 
-def rolVol(dReturns, window): #TODO Volatility Rolling
+def rolVol(dReturns, daywindow): #TODO Volatility Rolling
     """
     Recebe um pdDataFrame com os retornos diários e um número natural de intervalo e retorna.
     """
-    temp = dReturns.rolling(window=window).std()
+    temp = dReturns.rolling(window=daywindow).std()
     return temp
 
 def clusterVol(dReturns, window, weight): #TODO Volatility Cluster
@@ -34,22 +34,23 @@ def benchmarkBeta(dReturns, benchmarkReturns): #TODO Linear Beta
 
     pass
 
-def ewmaVol(dReturns, window, lamb = 0.94): #TODO ajustar código para que funcione com DataFrame, está trabalhando apenas com DataSeries
+def ewmadVol(dReturns, window, lamb = 0.94):
     """
     Recebe:
         dReturns (Pandas.DataFrame / .Series): retornos diários.
         window (int): número no intervalo da série de retornos, para o range da volatilidade.
         lam (float): parâmetro do decaimento exponencial
     Devolve:
-        numpy.float64: volatilidade diária EWMA.
+        Pandas.Series: volatilidade diária EWMA.
     """
 
     temp = pd.DataFrame(dReturns)
     temp = temp[len(dReturns)- window:]
     temp['Expo'] = np.arange(window-1,-1,-1)
-    temp['EWMA Vol'] = temp.apply(lambda x: (x['Returns']**2)* (1 - lamb) * (lamb) **(x['Expo']) , axis=1)
+    temp = temp.apply(lambda x: (x**2)* (1 - lamb) * (lamb) **(x['Expo']) , axis=1)
+    temp.drop('Expo', axis=1, inplace=True)
 
-    return np.sqrt(temp['EWMA Vol'].sum())
+    return np.sqrt(temp.sum())
 
 def rolewmaVol(dReturns, window, lamb = 0.94):
     # (sigma^2)_t =  (1 - lambda) * (r^2)_t-1  +  lambda * (sigma^2)_t-1

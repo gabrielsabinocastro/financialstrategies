@@ -32,7 +32,7 @@ class DataYFinance():
         
         return df
 
-    def mReturns(self, adjclose): #TODO adapatar para DataFrame, funciona epanas com DataSeries
+    def mReturns(self, adjclose):
         """
         Recebe:
             adjclose (Pandas.DataFrame / .Series): preços diários ajustados.
@@ -40,13 +40,12 @@ class DataYFinance():
             Pandas.DataFrame / .Series: dataframe/series com os retornos mensais.        
         """
         
-        adjclose = adjclose.rename('Returns')
         temp = (adjclose.pct_change().dropna()).resample("M").apply(lambda x: ((1+x).prod()) - 1)
         temp.index = pd.to_datetime(temp.index, format="%Y%m").to_period('M')
         
         return temp
 
-    def dReturns(self, adjclose): #TODO adapatar para DataFrame, funciona epanas com DataSeries
+    def dReturns(self, adjclose):
         """
         Recebe:
             adjclose (Pandas.DataFrame / .Series): preços diários ajustados.
@@ -54,41 +53,40 @@ class DataYFinance():
             Pandas.DataFrame / .Series: dataframe/series com os retornos diários.
         """
         
-        adjclose = adjclose.rename('Returns')
         temp = adjclose.dropna().pct_change()
         
         return temp.dropna()
     
-    def mVol(self, adjclose): #TODO adapatar para DataFrame, funciona epanas com DataSeries
+    def mVol(self, adjclose):
         """
         Recebe:
             adjclose (Pandas.DataFrame / .Series): preços diários ajustados.
         Devolve:
-            numpy.float64: volatilidade (simples) mensal.
+            numpy.float64 / Pandas.Series: volatilidade (simples) mensal.
         """
         
         temp = self.mReturns(adjclose).std()
         
         return temp
 
-    def dVol(self, adjclose): #TODO adapatar para DataFrame, funciona epanas com DataSeries
+    def dVol(self, adjclose):
         """
         Recebe:
             adjclose (Pandas.DataFrame / .Series): preços diários ajustados.
         Devolve:
-            numpy.float64: volatilidade (simples) diária.
+            numpy.float64 / Pandas.Series: volatilidade (simples) diária.
         """
         
         temp = self.dReturns(adjclose).std()
         
         return temp
 
-    def aVol(self, adjclose): #TODO adapatar para DataFrame, funciona epanas com DataSeries
+    def aVol(self, adjclose):
         """
         Recebe:
             adjclose (Pandas.DataFrame / .Series): preços diários ajustados.
         Devolve:
-            numpy.float64: volatilidade (simples) anualizada.
+            numpy.float64 / Pandas.Series: volatilidade (simples) anualizada.
         """
         
         temp = (252 ** (1/2)) * self.dVol(adjclose)
